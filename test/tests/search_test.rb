@@ -31,6 +31,22 @@ class SearchTest < BaseTest
   # [7] Make sure at least one attribute (title, overview, skills, etc) of each item (found freelancer)
   # from parsed search results contains `<keyword>` Log in stdout which freelancers and attributes contain `<keyword>` and which do not.
   Log.step('Make sure at least one attribute of each item contains `<keyword>`')
-  freelancer_profiles.each(&:attr_check)
+  freelancer_profiles.each do |profile|
+    profile.attr_check(Constants::KEYWORD)
+  end
+
+  # [8] Click on random freelancer's title
+  # [9] Get into that freelancer's profile
+  Log.step('Click on random freelancer`s title and get into that freelancer`s profile')
+  profile_index = rand(1..search_page.search_result_number)
+  freelancer_profile_page = search_page.open_freelancer_profile(profile_index)
+
+  # [10] Check that each attribute value is equal to one of those stored in the structure created in #67
+  Log.step('Check that each attribute value is equal')
+  freelancer_profile_page.profile_check(freelancer_profiles[profile_index - 1])
+
+  # [11] Check whether at least one attribute contains `<keyword>`
+  Log.step('Check whether at least one attribute contains `<keyword>`')
+  freelancer_profile_page.attr_check(Constants::KEYWORD)
 
 end

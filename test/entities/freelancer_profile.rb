@@ -14,13 +14,13 @@ class FreelancerProfile
   #
   # @return [Boolean]: true if contains
   def attr_check(text)
-    Log.message("Checking attributes contains <#{text}> >>")
+    Log.message("Checking attributes contains <#{text}> for #{name} >>")
 
     if @title.include?(text) || @description.include?(text) || @skills.include?(text)
 
-      @title.include?(text) ? Log.message("Title attribute contains <#{text}>") : Log.message("Title attribute NOT contains <#{text}>")
-      @description.include?(text) ? Log.message("Description attribute contains <#{text}>") : Log.message("Description attribute NOT contains <#{text}>")
-      @skills.include?(text) ? Log.message("Skills attribute contains <#{text}>") : Log.message("Skills attribute NOT contains <#{text}>")
+      @title.include?(text) ? Log.message("Title attribute contains <#{text}>") : Log.warning("Title attribute NOT contains <#{text}>")
+      @description.include?(text) ? Log.message("Description attribute contains <#{text}>") : Log.warning("Description attribute NOT contains <#{text}>")
+      @skills.include?(text) ? Log.message("Skills attribute contains <#{text}>") : Log.warning("Skills attribute NOT contains <#{text}>")
       true
     else
       Log.warning("No one attribute contains <#{text}>")

@@ -12,6 +12,6 @@ class HomePage < BasePage
     type(SEARCH_FIELD, keyword)
     click_wait(SEARCH_BUTTON, 10)
 
-    SearchPage.new(BaseTest.driver)
+    SearchResultPage.new(BaseTest.driver)
   end
 end

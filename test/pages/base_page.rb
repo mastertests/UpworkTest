@@ -80,7 +80,7 @@ class BasePage
   #
   # @return [Element]: Founded element
   def get_element(element, arg = nil)
-    Log.message('Getting element >>')
+    # Log.message('Getting element >>')
 
     if element.instance_of?(ElementLocator)
       if arg.nil?
@@ -101,7 +101,7 @@ class BasePage
   #
   # @return [Array<Element>]: Array of founded elements
   def get_elements(element, arg = nil)
-    Log.message('Getting elements >>')
+    # Log.message('Getting elements >>')
 
     if element.instance_of?(ElementLocator)
       if arg.nil?
@@ -122,7 +122,7 @@ class BasePage
   #
   # @return [String]: Text of define element if element displayed
   def get_element_text(element, arg = nil)
-    Log.message('Getting element text >>')
+    # Log.message('Getting element text >>')
 
     get_element(element, arg).text
   end
@@ -135,7 +135,7 @@ class BasePage
   #
   # @return [Array<String>]: Text of define element if element displayed
   def get_elements_text(element, arg = nil)
-    Log.message('Getting elements text >>')
+    # Log.message('Getting elements text >>')
 
     elements_text = []
 
@@ -162,9 +162,9 @@ class BasePage
     end
 
     # Array should be empty if element(s) absent
-    # This method quicker than default
+    # This method quicker than waiting for error
     if get_elements(element, arg).empty?
-      Log.error("Elements with #{element.locator_type} <#{element.locator}> is not displayed")
+      Log.warning("Elements with #{element.locator_type} <#{element.locator}> is not displayed")
       false
     else
       Log.message("Elements with #{element.locator_type} <#{element.locator}> is displayed")
@@ -199,8 +199,6 @@ class BasePage
   #
   # @param arg [Symbol, String, Integer]: Argument in elements locator
   def click_wait(element, sec, arg = nil)
-    Log.message("Clicking and wait element #{element.element_id} >>")
-
     click(element, arg)
     wait(sec)
   end
@@ -209,13 +207,15 @@ class BasePage
   #
   # @param element [ElementLocator]: Locator of element need to click
   #
+  # @param arg [Symbol, String, Integer]: Argument in elements locator
+  #
   # @param timeout [Integer]: Timeout in seconds
   #
   # @param element_waiting_for [ElementLocator]: Locator of element waiting for
-  def click_wait_until_displayed(element, timeout, element_waiting_for)
+  def click_wait_until_displayed(element, arg, timeout, element_waiting_for)
     Log.message("Clicking and wait until element #{element_waiting_for.element_id} present >>")
 
-    click(element)
+    click(element, arg)
     wait_until_element_displayed(element_waiting_for, timeout)
   end
 
@@ -260,7 +260,6 @@ class BasePage
   end
 
   # Waiting for element present
-  #
   #
   # @param element [ElementLocator]: Element waiting for
   #

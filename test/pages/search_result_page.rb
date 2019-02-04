@@ -1,6 +1,6 @@
 require_relative '../entities/freelancer_profile'
 
-class SearchPage < BasePage
+class SearchResultPage < BasePage
 
   SEARCH_RESULT_LOCATOR = '//section//section[contains(@data-compose-log-data,", ?)")]'.freeze
   SEARCH_RESULT_SECTION = ElementLocator.new(:xpath, '//section//section[@data-compose-log-data]')
@@ -14,11 +14,17 @@ class SearchPage < BasePage
   FREELANCER_SKILLS = ElementLocator.new(:xpath,
                                          SEARCH_RESULT_LOCATOR + '//a[contains(@class,"o-tag-skill")]')
 
+  FREELANCER_PROFILE_LINK = ElementLocator.new(:xpath,
+                                               SEARCH_RESULT_LOCATOR + '//div[contains(@class,"ellipsis")]//h4/a')
+
+  # Get all results on 1 page
+  #
+  # @return [Array<Element>]
   def results
     i = 1
     profiles = []
 
-    while i <= get_elements(SEARCH_RESULT_SECTION).size
+    while i <= search_result_number
       profiles << FreelancerProfile.new(get_element_text(FREELANCER_NAME, i),
                                         get_element_text(FREELANCER_TITLE, i),
                                         displayed?(FREELANCER_DESCRIPTION, i) ? get_element_text(FREELANCER_DESCRIPTION, i) : 'No description',
@@ -28,5 +34,20 @@ class SearchPage < BasePage
     end
 
     profiles
+  end
+  
+  def search_result_number
+    get_elements(SEARCH_RESULT_SECTION).size
+  end
+
+  # Open freelancer page by index
+  #
+  # @param index [Integer]: Index of freelancer profile
+  #
+  # @return [FreelancerProfilePage]: Freelancer profile page
+  def open_freelancer_profile(index)
+    click_wait(FREELANCER_PROFILE_LINK, 10, index)
+
+    FreelancerProfilePage.new(BaseTest.driver)
   end
 end
