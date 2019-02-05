@@ -21,7 +21,7 @@ class SearchTest < BaseTest
   # [5] Enter `<keyword>` into the search input right from the dropdown
   # and submit it (click on the magnifying glass button)
   Log.step('Input <keyword> into the search field and submit')
-  search_page = page.search_for(Constants::KEYWORD)
+  search_page = page.search_for(:freelancers, Constants::KEYWORD)
 
   # [6] Parse the 1st page with search results:
   # store info given on the 1st page of search results as structured data of any chosen by you type
@@ -39,6 +39,7 @@ class SearchTest < BaseTest
   # [9] Get into that freelancer's profile
   Log.step('Click on random freelancer`s title and get into that freelancer`s profile')
   profile_index = rand(1..search_page.search_result_number)
+  Log.message("Open freelancer with index #{profile_index}")
   freelancer_profile_page = search_page.open_freelancer_profile(profile_index)
 
   # [10] Check that each attribute value is equal to one of those stored in the structure created in #67

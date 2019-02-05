@@ -2,7 +2,7 @@ require_relative '../entities/freelancer_profile'
 
 class SearchResultPage < BasePage
 
-  SEARCH_RESULT_LOCATOR = '//section//section[contains(@data-compose-log-data,", ?)")]'.freeze
+  SEARCH_RESULT_LOCATOR = '//section//section[@data-compose-log-data][?]'.freeze
   SEARCH_RESULT_SECTION = ElementLocator.new(:xpath, '//section//section[@data-compose-log-data]')
 
   FREELANCER_NAME = ElementLocator.new(:xpath,
@@ -13,6 +13,8 @@ class SearchResultPage < BasePage
                                               SEARCH_RESULT_LOCATOR + '//div[contains(@class,"d-lg-block")]//p')
   FREELANCER_SKILLS = ElementLocator.new(:xpath,
                                          SEARCH_RESULT_LOCATOR + '//a[contains(@class,"o-tag-skill")]')
+  FREELANCER_ADDITIONAL_SKILLS = ElementLocator.new(:xpath,
+                                                    SEARCH_RESULT_LOCATOR + '//span[@class="d-none"]')
 
   FREELANCER_PROFILE_LINK = ElementLocator.new(:xpath,
                                                SEARCH_RESULT_LOCATOR + '//div[contains(@class,"ellipsis")]//h4/a')
@@ -21,21 +23,34 @@ class SearchResultPage < BasePage
   #
   # @return [Array<Element>]
   def results
+    Log.message('Storage search result >>')
+
     i = 1
     profiles = []
 
     while i <= search_result_number
-      profiles << FreelancerProfile.new(get_element_text(FREELANCER_NAME, i),
-                                        get_element_text(FREELANCER_TITLE, i),
-                                        displayed?(FREELANCER_DESCRIPTION, i) ? get_element_text(FREELANCER_DESCRIPTION, i) : 'No description',
-                                        get_elements_text(FREELANCER_SKILLS, i))
+      profile_name = get_element_text(FREELANCER_NAME, i).strip
+      profile_title = get_element_text(FREELANCER_TITLE, i)
+      profile_description = displayed?(FREELANCER_DESCRIPTION, i, false) ? get_element_text(FREELANCER_DESCRIPTION, i) : 'No description'
+      profile_skills = if displayed?(FREELANCER_ADDITIONAL_SKILLS, i, false)
+                         additional_skills = get_element_text(FREELANCER_ADDITIONAL_SKILLS, i).delete("\n ").split(',')
+                         get_elements_text(FREELANCER_SKILLS, i).each(&:strip!).push(*additional_skills)
+                       else
+                         get_elements_text(FREELANCER_SKILLS, i).each(&:strip!)
+                       end
+
+      profiles << FreelancerProfile.new(profile_name, profile_title, profile_description, profile_skills)
 
       i += 1
     end
+    Log.message('- Storage successful -')
 
     profiles
   end
-  
+
+  # Get number of elements in result search
+  #
+  # @return [Integer]
   def search_result_number
     get_elements(SEARCH_RESULT_SECTION).size
   end

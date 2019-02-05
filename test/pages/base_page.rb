@@ -2,7 +2,7 @@ require 'selenium-webdriver'
 
 class BasePage
   class << self
-    attr_accessor :browser
+    attr_reader :browser
   end
 
   def initialize(browser)
@@ -32,18 +32,6 @@ class BasePage
     else
       @browser.close
       Log.message('Page closed')
-    end
-  end
-
-  # Closing current browser
-  def exit
-    Log.message('Closing browser >>')
-
-    if @browser.nil?
-      Log.error('Browser is already closed')
-    else
-      @browser.quit
-      Log.message('Browser closed')
     end
   end
 
@@ -80,8 +68,6 @@ class BasePage
   #
   # @return [Element]: Founded element
   def get_element(element, arg = nil)
-    # Log.message('Getting element >>')
-
     if element.instance_of?(ElementLocator)
       if arg.nil?
         @browser.find_element("#{element.locator_type}": element.locator)
@@ -101,8 +87,6 @@ class BasePage
   #
   # @return [Array<Element>]: Array of founded elements
   def get_elements(element, arg = nil)
-    # Log.message('Getting elements >>')
-
     if element.instance_of?(ElementLocator)
       if arg.nil?
         @browser.find_elements("#{element.locator_type}": element.locator)
@@ -122,8 +106,6 @@ class BasePage
   #
   # @return [String]: Text of define element if element displayed
   def get_element_text(element, arg = nil)
-    # Log.message('Getting element text >>')
-
     get_element(element, arg).text
   end
 
@@ -135,8 +117,6 @@ class BasePage
   #
   # @return [Array<String>]: Text of define element if element displayed
   def get_elements_text(element, arg = nil)
-    # Log.message('Getting elements text >>')
-
     elements_text = []
 
     get_elements(element, arg).each do |web_element|
@@ -152,23 +132,50 @@ class BasePage
   #
   # @param arg [Symbol, String, Integer]: Argument in elements locator
   #
-  # @return [Boolean]: if element displayed return true
-  def displayed?(element, arg = nil)
-    Log.message('Checking element displayed >>')
+  # @param with_log [Boolean]: Set false if log is not needed
+  #
+  # @return [Boolean]: if at least one is displayed return true
+  def displayed?(element, arg = nil, with_log = true)
+    Log.message('Checking element displayed >>') if with_log
 
     unless element.instance_of?(ElementLocator)
       Log.error('Param <element> is not [ElementLocator] ---Ignored')
       return
     end
 
-    # Array should be empty if element(s) absent
-    # This method quicker than waiting for error
+    # Array should be empty if element(s) absent. This method quicker than waiting for error
     if get_elements(element, arg).empty?
-      Log.warning("Elements with #{element.locator_type} <#{element.locator}> is not displayed")
+      Log.warning("Elements with #{element.element_id} is not displayed") if with_log
       false
     else
-      Log.message("Elements with #{element.locator_type} <#{element.locator}> is displayed")
-      true # return if at least one is displayed
+      Log.message("Elements with #{element.element_id} is displayed") if with_log
+      true
+    end
+  end
+
+  # Check menu element selected
+  #
+  # @param element [ElementLocator]: Locator of element need to check
+  #
+  # @param arg [Symbol, String, Integer]: Argument in element locator
+  #
+  # @param with_log [Boolean]: Set false if log is not needed
+  #
+  # @return [Boolean]: if selected return true
+  def selected?(element, arg = nil, with_log = true)
+    Log.message('Checking element selected >>') if with_log
+
+    unless element.instance_of?(ElementLocator)
+      Log.error('Param <element> is not [ElementLocator] ---Ignored')
+      return
+    end
+
+    if get_element(element, arg).selected?
+      Log.message("Elements with #{element.element_id} is selected") if with_log
+      true
+    else
+      Log.message("Elements with #{element.element_id} is NOT selected") if with_log
+      false
     end
   end
 
@@ -182,9 +189,7 @@ class BasePage
   #
   # @param arg [Symbol, String, Integer]: Argument in elements locator
   def click(element, arg = nil)
-    Log.message("Clicking on element #{element.element_id} >>")
-
-    if displayed?(element, arg)
+    if displayed?(element, arg, false)
       get_element(element, arg).click
     else
       Log.error("Element #{element.element_id} is absent")
@@ -229,8 +234,6 @@ class BasePage
   #
   # @param text [String]: Text to type
   def type(field, text)
-    Log.message("Typing text <#{text}> in field <#{field.element_id}> >>")
-
     get_element(field).send_keys(text)
   end
 
